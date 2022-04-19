@@ -7,20 +7,29 @@
 //            Partial images will be transmitted if image exceeds buffer size
 //
 
+
+#define CREATE_ACCESS_POINT
+
 // Select camera model
-#define CAMERA_MODEL_WROVER_KIT // Has PSRAM
+//#define CAMERA_MODEL_WROVER_KIT // Has PSRAM
 //#define CAMERA_MODEL_ESP_EYE // Has PSRAM
 //#define CAMERA_MODEL_M5STACK_PSRAM // Has PSRAM
 //#define CAMERA_MODEL_M5STACK_V2_PSRAM // M5Camera version B Has PSRAM
 //#define CAMERA_MODEL_M5STACK_WIDE // Has PSRAM
 //#define CAMERA_MODEL_M5STACK_ESP32CAM // No PSRAM
-//#define CAMERA_MODEL_AI_THINKER // Has PSRAM
+#define CAMERA_MODEL_AI_THINKER // Has PSRAM
 //#define CAMERA_MODEL_TTGO_T_JOURNAL // No PSRAM
 
 #include "camera_pins.h"
 
+#if defined(CREATE_ACCESS_POINT)
+const char* ssid = "skyview";
+const char* password = "pawpilot";
+#else
 const char* ssid = "VM4826700";
 const char* password = "mfyd8YrKjqsh";
+#endif
+
 
 void startCameraServer();
 
@@ -90,6 +99,16 @@ void setup() {
   s->set_hmirror(s, 1);
 #endif
 
+#if defined(CREATE_ACCESS_POINT)
+  // Connect to Wi-Fi network with SSID and password
+  Serial.print("Setting AP (Access Point)…");
+  // Remove the password parameter, if you want the AP (Access Point) to be open
+  WiFi.softAP(ssid, password);
+
+  IPAddress IP = WiFi.softAPIP();
+  Serial.print("Camera Stream Ready! Connect to the ESP32 AP and go to: http://");
+  Serial.println(IP);
+#else
   WiFi.begin(ssid, password);
 
   while (WiFi.status() != WL_CONNECTED) {
@@ -98,6 +117,7 @@ void setup() {
   }
   Serial.println("");
   Serial.println("WiFi connected");
+#endif
 
   startCameraServer();
 

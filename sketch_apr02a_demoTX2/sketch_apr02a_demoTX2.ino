@@ -61,10 +61,24 @@ void loop()
   int inputVal1 = analogRead (A1); // Analog Values 0 to 1023
   int inputVal2 = analogRead (A2); // Analog Values 0 to 1023
   int inputVal3 = analogRead (A3); // Analog Values 0 to 1023
+/*
   fix0 = 102300/inputVal0 - 100;
   fix1 = 102300/inputVal1 - 100;
   fix2 = 102300/inputVal2 - 100;
   fix3 = 102300/inputVal3 - 100;
+*/
+  fix0 = 12000/inputVal0 - 20;
+  fix1 = 12000/inputVal1 - 10;
+  fix2 = 70000/inputVal2 - 80;
+  fix3 = 70000/inputVal3 - 80;
+
+
+  if (fix0 < 0) fix0 = 0;
+  if (fix1 < 0) fix1 = 0;
+  if (fix0 >255) fix0 = 255;
+  if (fix1 >255) fix1 = 255;
+
+  
   payload.data1 = fix0;
   payload.data2 = fix1;
   payload.data3 = digitalRead(2);

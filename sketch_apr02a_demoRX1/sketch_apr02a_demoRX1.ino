@@ -96,7 +96,10 @@ void loop()
       oled.println(payload.data1);
       oled.print("Data2:");
       oled.println(payload.data2);
-
+      oled.print("Data3:");
+      oled.println(payload.data3);
+      oled.print("Data4:");
+      oled.println(payload.data4);
 
     lastSignalMillis = currentMillis;
   }
