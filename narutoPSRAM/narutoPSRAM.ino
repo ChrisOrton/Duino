@@ -27,12 +27,18 @@ TFT_eSPI tft = TFT_eSPI();
 
 // size of the drawing framebuffer
 // (limited by the amount of memory in the ESP32). 
-#define SLX 270
-#define SLY 200
+//#define SLX 140
+//#define SLY 200
+//#define SLX 270
+//#define SLY 200
+//#define SLX 300
+//#define SLY 200
+#define SLX 320
+#define SLY 240
 
 // the framebuffer we draw onto
-uint16_t fb[SLX * SLY];
-//uint16_t* fb;
+//uint16_t fb[SLX * SLY];
+uint16_t* fb;
 
 // second framebuffer used by eSPI_TFT for DMA update
 // allocated via malloc
@@ -42,7 +48,8 @@ uint16_t* fb2;
 uint16_t* zbuf;
 
 // the image that encapsulate framebuffer fb
-Image<RGB565> imfb(fb, SLX, SLY);
+//Image<RGB565> imfb(fb, SLX, SLY);
+Image<RGB565>* imfbp;
 
 
 // only load the shaders we need.
@@ -68,13 +75,18 @@ void setup()
     logMemory();
 
     // allocate the second framebuffer
-    //fb = (uint16_t*)ps_malloc(SLX * SLY * sizeof(uint16_t));
-    //while (fb == nullptr)
-    //{
-     //   Serial.println("Error: cannot allocate memory for fb");
-     //   delay(1000);
-    //}
+    fb = (uint16_t*)ps_malloc(SLX * SLY * sizeof(uint16_t));
+    while (fb == nullptr)
+    {
+        Serial.println("Error: cannot allocate memory for fb");
+        delay(1000);
+    }
     logMemory();
+
+
+    imfbp = new Image<RGB565>(fb, SLX, SLY);
+
+    
     // allocate the second framebuffer
     fb2 = (uint16_t*)ps_malloc(SLX * SLY * sizeof(uint16_t));
     while (fb2 == nullptr)
@@ -113,7 +125,8 @@ void setup()
     // setup the 3D renderer.
     renderer.setViewportSize(SLX,SLY);
     renderer.setOffset(0, 0);    
-    renderer.setImage(&imfb); // set the image to draw onto (ie the screen framebuffer)
+    //renderer.setImage(&imfb); // set the image to draw onto (ie the screen framebuffer)
+    renderer.setImage(imfbp); // set the image to draw onto (ie the screen framebuffer)
     renderer.setZbuffer(zbuf); // set the z buffer for depth testing
     renderer.setPerspective(45, ((float)SLX) / SLY, 1.0f, 100.0f);  // set the perspective projection matrix.     
 
@@ -205,6 +218,7 @@ int cs_off = CS_2;
 void loop()
 {
     //Serial.println("Loop");
+    uint32_t t = millis();
     //cs_on  = cs_on  - cs_off;
     //cs_off = cs_off + cs_on;
     //cs_on = cs_off - cs_on;
@@ -224,7 +238,8 @@ void loop()
     renderer.setModelMatrix(M);
 
     // draw the 3D mesh
-    imfb.fillScreen(RGB565_Cyan);              // clear the framebuffer (black background)
+    //imfb.fillScreen(RGB565_Cyan);              // clear the framebuffer (black background)
+    imfbp->fillScreen(RGB565_Cyan);              // clear the framebuffer (black background)
     renderer.clearZbuffer();                    // clear the z-buffer
 
     // choose the shader to use
@@ -267,12 +282,20 @@ void loop()
     }else{
     //   tft.pushImageDMA(170, (tft.height() - SLY) / 2, SLX, SLY, fb, fb2);
     }
-    tft.pushImageDMA((tft.width() - SLX) / 2, (tft.height() - SLY) / 2, SLX, SLY, fb, fb2);
+    //tft.pushImageDMA((tft.width() - SLX) / 2, (tft.height() - SLY) / 2, SLX, SLY, fb, fb2);
+
+    int offset = (SLX * SLY /2);
+    tft.pushImageDMA(0,       0, SLX, SLY/2,        fb,        fb2);
+    //tft.dmaWait();  //added this to wait for DMA to finish before 
+    tft.pushImageDMA(0, SLY / 2, SLX, SLY/2, fb+offset, fb2+offset);
     
     
     //tft.dmaWait();  //added this to wait for DMA to finish before 
     //digitalWrite(cs_on, HIGH);    
     //digitalWrite(cs_off, HIGH);    
+    t = millis() - t;
+    Serial.print(t); Serial.println(" ms");
+
     //Serial.println("Looped");
 }
 

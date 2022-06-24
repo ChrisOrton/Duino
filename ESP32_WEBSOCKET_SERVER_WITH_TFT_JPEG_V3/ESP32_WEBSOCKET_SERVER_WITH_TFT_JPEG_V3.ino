@@ -18,17 +18,24 @@ TFT_eSPI tft = TFT_eSPI();         // Invoke custom library
 #define TFT_CS1 12
 #define TFT_CS2 14
 
+// the framebuffer we draw onto
+//uint16_t dma_fb[320 * 240];
+uint16_t *dma_fb=NULL;
 
 bool tft_output(int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t* bitmap)
 {
+
+  if (dma_fb) free(dma_fb);
+  dma_fb = (uint16_t*)malloc(w*h*2);
+  
    // Stop further decoding as image is running off bottom of screen
   if ( y >= tft.height() ) return 0;
 
   // This function will clip the image block rendering automatically at the TFT boundaries
-  tft.pushImage(x, y, w, h, bitmap);
+  //tft.pushImage(x, y, w, h, bitmap);
       //tft.dmaWait();
-      //tft.pushImageDMA(x, y, w, h, bitmap);
-
+      tft.pushImageDMA(x, y, w, h, bitmap, dma_fb);
+      //tft.dmaWait();
 
   // This might work instead if you adapt the sketch to use the Adafruit_GFX library
   // tft.drawRGBBitmap(x, y, bitmap, w, h);
@@ -44,18 +51,19 @@ void setup() {
   delay(1000);
 
   pinMode(TFT_CS1, OUTPUT);
+  pinMode(TFT_CS2, OUTPUT);
   digitalWrite(TFT_CS1, LOW);
-  //pinMode(TFT_CS2, OUTPUT);
-  //digitalWrite(TFT_CS2, LOW);
-  
+  digitalWrite(TFT_CS2, HIGH);
+
+    
   tft.begin();
   tft.setRotation(3);
   tft.setTextColor(0xFFFF, 0x0000);
-  tft.fillScreen(TFT_RED);
+  tft.fillScreen(TFT_BLUE);
   tft.setSwapBytes(true); // We need to swap the colour bytes (endianess)
 
-//    tft.initDMA();
-//    tft.startWrite();
+  tft.initDMA();
+  //tft.startWrite();
 
 
 
@@ -74,10 +82,15 @@ void setup() {
   Serial.println(IP);
 
   server.listen(8888);
+  digitalWrite(TFT_CS1, HIGH);
+  digitalWrite(TFT_CS2, HIGH);
 }
 
 void loop() {
-  if(server.poll()){
+  digitalWrite(TFT_CS1, LOW);
+  digitalWrite(TFT_CS2, HIGH);
+
+    if(server.poll()){
       client = server.accept();
     }
 

@@ -9,6 +9,9 @@ TFT_eSPI tft = TFT_eSPI();       // Invoke custom library
 
 #define TFT_GREY 0x7BEF
 
+#define TFT_CS1 12
+#define TFT_CS2 14
+
 unsigned long runTime = 0;
 
 float sx = 0, sy = 0;
@@ -20,23 +23,25 @@ void setup()
   //randomSeed(analogRead(A0));
   Serial.println();
   // Setup the LCD
-  pinMode(12, OUTPUT);
-  digitalWrite(12, LOW);
+  pinMode(TFT_CS1, OUTPUT);
+  digitalWrite(TFT_CS1, LOW);
   
-  pinMode(14, OUTPUT);
-  digitalWrite(14, LOW);
+  pinMode(TFT_CS2, OUTPUT);
+  digitalWrite(TFT_CS2, LOW);
   tft.init();
   
-  digitalWrite(12, HIGH);
-  digitalWrite(14, HIGH);
+  digitalWrite(TFT_CS1, HIGH);
+  digitalWrite(TFT_CS2, HIGH);
   
-  digitalWrite(12, LOW);
+  digitalWrite(TFT_CS1, LOW);
   tft.setRotation(3);
-  digitalWrite(12, HIGH);
+  tft.fillScreen(TFT_RED);
+  digitalWrite(TFT_CS1, HIGH);
 
-  digitalWrite(14, LOW);
+  digitalWrite(TFT_CS2, LOW);
   tft.setRotation(3);
-  digitalWrite(14, HIGH);
+  tft.fillScreen(TFT_BLUE);
+  digitalWrite(TFT_CS2, HIGH);
   
 }
 
@@ -45,16 +50,16 @@ void loopOrigish()
   runTime = millis();
   int xcomp = 0;
 
-  digitalWrite(12, LOW);
-  digitalWrite(14, LOW);
+  digitalWrite(TFT_CS1, LOW);
+  digitalWrite(TFT_CS2, LOW);
   tft.fillScreen(TFT_BLACK);
   tft.startWrite();
-  digitalWrite(12, LOW);
-  //digitalWrite(14, HIGH);
+  digitalWrite(TFT_CS1, LOW);
+  //digitalWrite(TFT_CS2, HIGH);
   for (int px = 1; px < 640; px++)
   {
     if (px>320){
-      digitalWrite(12, HIGH);
+      digitalWrite(TFT_CS1, HIGH);
       digitalWrite(14, LOW);
       xcomp = 320;
     }
@@ -77,8 +82,8 @@ void loopOrigish()
       yield();tft.drawPixel(px-xcomp, py, color);
     }
   }
- digitalWrite(12, LOW);
- digitalWrite(14, LOW);
+  digitalWrite(TFT_CS1, LOW);
+  digitalWrite(TFT_CS2, LOW);
   tft.endWrite();
 
   Serial.println(millis()-runTime);
@@ -90,7 +95,7 @@ void loopL()
   runTime = millis();
   int xcomp = 0;
 
-  digitalWrite(12, LOW);
+  digitalWrite(TFT_CS1, LOW);
   tft.fillScreen(TFT_BLACK);
   tft.startWrite();
   for (int px = 1; px < 320; px++)
@@ -118,8 +123,8 @@ void loopL()
     }
   }
   tft.endWrite();
-  digitalWrite(12, HIGH);
-  digitalWrite(14, HIGH);
+  digitalWrite(TFT_CS1, HIGH);
+  digitalWrite(TFT_CS2, HIGH);
   Serial.println(millis()-runTime);
 }
 
@@ -128,7 +133,7 @@ void loopR()
   runTime = millis();
   int xcomp = 0;
 
-  digitalWrite(14, LOW);
+  digitalWrite(TFT_CS2, LOW);
   tft.fillScreen(TFT_RED);
   tft.startWrite();
   xcomp = 320;
@@ -154,8 +159,8 @@ void loopR()
     }
   }
   tft.endWrite();
-  digitalWrite(12, HIGH);
-  digitalWrite(14, HIGH);
+  digitalWrite(TFT_CS1, HIGH);
+  digitalWrite(TFT_CS2, HIGH);
   Serial.println(millis()-runTime);
 }
 

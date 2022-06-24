@@ -10,8 +10,6 @@
 
 // screen driver library
 #include <TFT_eSPI.h>
-#define CS_1 14
-#define CS_2 12
 
 // graphic library
 #include <tgx.h>
@@ -27,12 +25,13 @@ TFT_eSPI tft = TFT_eSPI();
 
 // size of the drawing framebuffer
 // (limited by the amount of memory in the ESP32). 
-#define SLX 270
+#define SLX 140
 #define SLY 200
+//#define SLX 160
+//#define SLY 220
 
 // the framebuffer we draw onto
 uint16_t fb[SLX * SLY];
-//uint16_t* fb;
 
 // second framebuffer used by eSPI_TFT for DMA update
 // allocated via malloc
@@ -52,57 +51,33 @@ const int LOADED_SHADERS = TGX_SHADER_PERSPECTIVE | TGX_SHADER_ZBUFFER | TGX_SHA
 Renderer3D<RGB565, LOADED_SHADERS, uint16_t> renderer;
 
 
-void logMemory() {
-  Serial.printf("PSRAM Size: %d\n", ESP.getPsramSize());
-  Serial.printf("Free PSRAM: %d\n", ESP.getFreePsram());
-  Serial.printf("Used PSRAM: %d\n", ESP.getPsramSize() - ESP.getFreePsram());
-}
+
 
 
 // the setup function runs once when you press reset or power the board
 void setup()
 {
     Serial.begin(115200);
-    Serial.println("Set up");
-
-    logMemory();
 
     // allocate the second framebuffer
-    //fb = (uint16_t*)ps_malloc(SLX * SLY * sizeof(uint16_t));
-    //while (fb == nullptr)
-    //{
-     //   Serial.println("Error: cannot allocate memory for fb");
-     //   delay(1000);
-    //}
-    logMemory();
-    // allocate the second framebuffer
-    fb2 = (uint16_t*)ps_malloc(SLX * SLY * sizeof(uint16_t));
+    fb2 = (uint16_t*)malloc(SLX * SLY * sizeof(uint16_t));
     while (fb2 == nullptr)
     {
         Serial.println("Error: cannot allocate memory for fb2");
         delay(1000);
     }
-    logMemory();
+
     // allocate the zbuffer
-    zbuf = (uint16_t*)ps_malloc(SLX * SLY * sizeof(uint16_t));
+    zbuf = (uint16_t*)malloc(SLX * SLY * sizeof(uint16_t));
     while (zbuf == nullptr)
     {
         Serial.println("Error: cannot allocate memory for zbuf");
         delay(1000);
     }
-    logMemory();
-    // direct control CS
-//    pinMode(12, OUTPUT);
-//    digitalWrite(12, LOW);
-    
-    //pinMode(12, OUTPUT);
-    //digitalWrite(12, LOW);    
-    pinMode(14, OUTPUT);
-    digitalWrite(14, LOW);    
-    
+
     // initialize the screen driver
     tft.init();
-    tft.setRotation(3);
+    tft.setRotation(0);
     tft.setSwapBytes(true);
     tft.fillScreen(TFT_BLACK);
     tft.setTextColor(TFT_RED);
@@ -116,20 +91,10 @@ void setup()
     renderer.setImage(&imfb); // set the image to draw onto (ie the screen framebuffer)
     renderer.setZbuffer(zbuf); // set the z buffer for depth testing
     renderer.setPerspective(45, ((float)SLX) / SLY, 1.0f, 100.0f);  // set the perspective projection matrix.     
-
-    renderer.setLookAt(0.0f, 0.0f, 0.0f,    0.0f, 0.0f, -1.0f,   0.0f, 1.0f, 0.0f);
-    
     renderer.setMaterial(RGBf(0.85f, 0.55f, 0.25f), 0.2f, 0.7f, 0.8f, 64); // bronze color with a lot of specular reflexion. 
     renderer.setCulling(1);
     renderer.setTextureQuality(TGX_SHADER_TEXTURE_NEAREST);
     renderer.setTextureWrappingMode(TGX_SHADER_TEXTURE_WRAP_POW2);        
-
-    pinMode(CS_1, OUTPUT);
-    digitalWrite(CS_1, HIGH);    
-    pinMode(CS_2, OUTPUT);
-    digitalWrite(CS_2, HIGH);    
-
-    Serial.println("Setted up");
 }
 
 
@@ -198,27 +163,11 @@ tgx::fMat4 moveModel(int& loopnumber)
 
 int loopnumber = 0;
 int prev_loopnumber = -1;
-int cs_on = CS_1;
-int cs_off = CS_2;
+
 
 /** Main loop */
 void loop()
 {
-    //Serial.println("Loop");
-    //cs_on  = cs_on  - cs_off;
-    //cs_off = cs_off + cs_on;
-    //cs_on = cs_off - cs_on;
-
-
-    //if (cs_on == 12){
-    //  renderer.setLookAt(-0.1f, 0.0f, 0.0f,    0.0f, 0.0f, -1.0f,   0.0f, 1.0f, 0.0f);
-    //}else{
-    //  renderer.setLookAt(0.1f, 0.0f, 0.0f,    0.0f, 0.0f, -1.0f,   0.0f, 1.0f, 0.0f);
-    //}
-
-
-    digitalWrite(cs_on, LOW);    
-    digitalWrite(cs_off, HIGH);    
     // compute the model position
     fMat4  M = moveModel(loopnumber);
     renderer.setModelMatrix(M);
@@ -262,18 +211,7 @@ void loop()
 
     // upload the framebuffer to the screen (async. via DMA)
     tft.dmaWait();
-    if (cs_on == 14){
-    //   tft.pushImageDMA(30, (tft.height() - SLY) / 2, SLX, SLY, fb, fb2);
-    }else{
-    //   tft.pushImageDMA(170, (tft.height() - SLY) / 2, SLX, SLY, fb, fb2);
-    }
     tft.pushImageDMA((tft.width() - SLX) / 2, (tft.height() - SLY) / 2, SLX, SLY, fb, fb2);
-    
-    
-    //tft.dmaWait();  //added this to wait for DMA to finish before 
-    //digitalWrite(cs_on, HIGH);    
-    //digitalWrite(cs_off, HIGH);    
-    //Serial.println("Looped");
 }
 
 

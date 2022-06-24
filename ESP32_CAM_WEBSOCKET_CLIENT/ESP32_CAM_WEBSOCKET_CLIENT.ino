@@ -51,6 +51,10 @@ void setup() {
   config.xclk_freq_hz = 10000000;
   config.pixel_format = PIXFORMAT_JPEG;
   //init with high specs to pre-allocate larger buffers
+    config.frame_size = FRAMESIZE_QVGA; // 320x240
+    config.jpeg_quality = 8;
+    config.fb_count = 2;
+/*
   if(psramFound()){
     config.frame_size = FRAMESIZE_QVGA; // 320x240
     config.jpeg_quality = 10;
@@ -60,7 +64,7 @@ void setup() {
     config.jpeg_quality = 12;
     config.fb_count = 1;
   }
-
+*/
 
   // camera init
   esp_err_t err = esp_camera_init(&config);
@@ -92,6 +96,8 @@ void setup() {
 }
 
 void loop() {
+  uint32_t t = millis();
+  
   camera_fb_t *fb = NULL;
   esp_err_t res = ESP_OK;
   fb = esp_camera_fb_get();
@@ -109,4 +115,7 @@ void loop() {
 
   client.sendBinary((const char*) fb->buf, fb->len);
   esp_camera_fb_return(fb);
+
+  t = millis() - t;
+  Serial.print(t); Serial.println(" ms");
 }
