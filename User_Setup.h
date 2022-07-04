@@ -73,7 +73,7 @@
 // Try ONE option at a time to find the correct colour order for your display
 
 //  #define TFT_RGB_ORDER TFT_RGB  // Colour order Red-Green-Blue
-//  #define TFT_RGB_ORDER TFT_BGR  // Colour order Blue-Green-Red
+#define TFT_RGB_ORDER TFT_BGR  // Colour order Blue-Green-Red
 
 // For M5Stack ESP32 module with integrated ILI9341 display ONLY, remove // in line below
 
@@ -110,8 +110,8 @@
 // If colours are inverted (white shows as black) then uncomment one of the next
 // 2 lines try both options, one of the options should correct the inversion.
 
-// #define TFT_INVERSION_ON
-#define TFT_INVERSION_OFF
+#define TFT_INVERSION_ON
+//#define TFT_INVERSION_OFF
 
 
 // ##################################################################################
@@ -221,14 +221,36 @@
 //
 //CPO For my ESP32 Dev board (only tested with GC9A01 display)
 // The hardware SPI can be mapped to any pins
+/*
+#define TFT_MOSI 23  // In some display driver board, it might be written as "SDA" and so on.
+#define TFT_SCLK 18
+#define TFT_CS   5  // Chip select control pin
+#define TFT_DC   21  // Data Command control pin
+#define TFT_RST  13  // Reset pin (could connect to Arduino RESET pin)
+#define TFT_BL   15  // LED back-light
+#define TFT_BACKLIGHT_ON HIGH  // Level to turn ON back-light (HIGH or LOW)
+*/
 
+
+#define TFT_MOSI 23  // In some display driver board, it might be written as "SDA" and so on.
+#define TFT_SCLK 18
+#define TFT_CS   5   // Chip select control pin
+#define TFT_DC   0   // Data Command control pin
+#define TFT_RST  4 // Reset pin (could connect to Arduino RESET pin)
+#define TFT_BL   27  // LED back-light
+
+#define TFT_BACKLIGHT_ON HIGH  // Level to turn ON back-light (HIGH or LOW)
+
+/*
 #define TFT_MOSI 32  // In some display driver board, it might be written as "SDA" and so on.
 #define TFT_SCLK 33
-//#define TFT_CS   14  // Chip select control pin
+#define TFT_CS   14  // Chip select control pin
 #define TFT_DC   25  // Data Command control pin
 #define TFT_RST  26  // Reset pin (could connect to Arduino RESET pin)
 #define TFT_BL   27  // LED back-light
 #define TFT_BACKLIGHT_ON HIGH  // Level to turn ON back-light (HIGH or LOW)
+*/
+
 
 //#define TOUCH_CS 21     // Chip select pin (T_CS) of touch screen
 
@@ -349,8 +371,8 @@
 // #define SPI_FREQUENCY   5000000
 // #define SPI_FREQUENCY  10000000
 // #define SPI_FREQUENCY  20000000
-#define SPI_FREQUENCY  27000000
-// #define SPI_FREQUENCY  40000000
+// #define SPI_FREQUENCY  27000000
+#define SPI_FREQUENCY  40000000
 // #define SPI_FREQUENCY  55000000 // STM32 SPI1 only (SPI2 maximum is 27MHz)
 // #define SPI_FREQUENCY  80000000
 
