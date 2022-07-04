@@ -10,14 +10,21 @@
 
 // screen driver library
 #include <TFT_eSPI.h>
-#define CS_1 14
+//#define CS_1 14
+//#define CS_2 12
+
+#define CS_1 5
 #define CS_2 12
+
+#define TEST_PIN 5
+
 
 // graphic library
 #include <tgx.h>
 
 // the mesh to draw
 #include "naruto.h"
+#include "stormtrooper.h"
 
 // let's not burden ourselves with the tgx:: prefix
 using namespace tgx;
@@ -35,6 +42,10 @@ TFT_eSPI tft = TFT_eSPI();
 //#define SLY 200
 #define SLX 320
 #define SLY 240
+
+
+int test_pins[3] = {5,18,23};
+
 
 // the framebuffer we draw onto
 //uint16_t fb[SLX * SLY];
@@ -109,8 +120,19 @@ void setup()
     
     //pinMode(12, OUTPUT);
     //digitalWrite(12, LOW);    
-    pinMode(14, OUTPUT);
-    digitalWrite(14, LOW);    
+    //pinMode(CS_1, OUTPUT);
+    //digitalWrite(CS_1, LOW);    
+
+    //pinMode(TEST_PIN, OUTPUT);
+    //digitalWrite(TEST_PIN, HIGH);    
+    //pinMode(test_pins[0], OUTPUT);
+    //pinMode(test_pins[1], OUTPUT);
+    //pinMode(test_pins[2], OUTPUT);
+    //digitalWrite(test_pins[0], HIGH);    
+    //digitalWrite(test_pins[1], HIGH);    
+    //digitalWrite(test_pins[2], HIGH);    
+
+
     
     // initialize the screen driver
     tft.init();
@@ -132,15 +154,16 @@ void setup()
 
     renderer.setLookAt(0.0f, 0.0f, 0.0f,    0.0f, 0.0f, -1.0f,   0.0f, 1.0f, 0.0f);
     
-    renderer.setMaterial(RGBf(0.85f, 0.55f, 0.25f), 0.2f, 0.7f, 0.8f, 64); // bronze color with a lot of specular reflexion. 
+    // renderer.setMaterial(RGBf(0.85f, 0.55f, 0.25f), 0.2f, 0.7f, 0.8f, 64); // bronze color with a lot of specular reflexion. 
+    renderer.setMaterial(RGBf(0.85f, 0.85f, 0.85f), 0.2f, 0.7f, 0.8f, 64); // bronze color with a lot of specular reflexion. 
     renderer.setCulling(1);
     renderer.setTextureQuality(TGX_SHADER_TEXTURE_NEAREST);
     renderer.setTextureWrappingMode(TGX_SHADER_TEXTURE_WRAP_POW2);        
 
-    pinMode(CS_1, OUTPUT);
-    digitalWrite(CS_1, HIGH);    
-    pinMode(CS_2, OUTPUT);
-    digitalWrite(CS_2, HIGH);    
+    //pinMode(CS_1, OUTPUT);
+    //digitalWrite(CS_1, HIGH);    
+    //pinMode(CS_2, OUTPUT);
+    //digitalWrite(CS_2, HIGH);    
 
     Serial.println("Setted up");
 }
@@ -214,6 +237,10 @@ int prev_loopnumber = -1;
 int cs_on = CS_1;
 int cs_off = CS_2;
 
+
+uint32_t lacc = 0;
+uint32_t lcnt = 0;
+
 /** Main loop */
 void loop()
 {
@@ -231,8 +258,8 @@ void loop()
     //}
 
 
-    digitalWrite(cs_on, LOW);    
-    digitalWrite(cs_off, HIGH);    
+    //digitalWrite(cs_on, LOW);    
+    //digitalWrite(cs_off, HIGH);    
     // compute the model position
     fMat4  M = moveModel(loopnumber);
     renderer.setModelMatrix(M);
@@ -246,18 +273,42 @@ void loop()
     switch (loopnumber % 4)
         {
         case 0: renderer.setShaders(TGX_SHADER_GOURAUD | TGX_SHADER_TEXTURE);
-                renderer.drawMesh(&naruto_1, false); 
+                //renderer.drawMesh(&naruto_1, false); 
+                renderer.drawMesh(&stormtrooper, false); 
+                //digitalWrite(TEST_PIN, HIGH);    
+                //digitalWrite(test_pins[0], LOW);    
+                ///digitalWrite(test_pins[1], LOW);    
+                //digitalWrite(test_pins[2], LOW);    
+
                 break;
                 
-        case 1: renderer.drawWireFrameMesh(&naruto_1, true);
+        //case 1: renderer.drawWireFrameMesh(&naruto_1, true);
+        //        break;
+        case 1: renderer.drawWireFrameMesh(&stormtrooper, true);
+                //digitalWrite(TEST_PIN, LOW);  
+                //digitalWrite(test_pins[0], HIGH);    
+                //digitalWrite(test_pins[1], LOW);    
+                //digitalWrite(test_pins[2], LOW);    
+                  
                 break;
         
         case 2: renderer.setShaders(TGX_SHADER_FLAT);
-                renderer.drawMesh(&naruto_1, false); 
+                //renderer.drawMesh(&naruto_1, false); 
+                renderer.drawMesh(&stormtrooper, false); 
+                //digitalWrite(TEST_PIN, HIGH);    
+                //digitalWrite(test_pins[0], LOW);    
+                //digitalWrite(test_pins[1], HIGH);    
+                //digitalWrite(test_pins[2], LOW);    
+                
                 break;
                 
         case 3: renderer.setShaders(TGX_SHADER_GOURAUD);
-                renderer.drawMesh(&naruto_1, false); 
+                //renderer.drawMesh(&naruto_1, false); 
+                renderer.drawMesh(&stormtrooper, false); 
+                //digitalWrite(TEST_PIN, LOW);    
+                //digitalWrite(test_pins[0], LOW);    
+                //digitalWrite(test_pins[1], LOW);    
+                //digitalWrite(test_pins[2], HIGH);    
                 break;        
         }
 
@@ -294,7 +345,10 @@ void loop()
     //digitalWrite(cs_on, HIGH);    
     //digitalWrite(cs_off, HIGH);    
     t = millis() - t;
-    Serial.print(t); Serial.println(" ms");
+    lacc = lacc + t;
+    lcnt = lcnt + 1;
+    Serial.print("t:"); Serial.print(t); Serial.print(" ms");
+    Serial.print(" avg:"); Serial.print(lacc / lcnt); Serial.println(" ms");
 
     //Serial.println("Looped");
 }
