@@ -104,23 +104,27 @@ void loop() {
 
   display.setCursor(0, 0);
   if (digitalRead(inPin0)){
-    display.println(F("Zero"));
+    display.println(F("Z  On"));
     
   }else{
-    display.println(F("Not Zero")); 
+    display.println(F("Z Off")); 
   }
 
-  display.setCursor(0, 15);
+  display.setCursor(60, 0);
   if (digitalRead(inPin1)){
-    display.println(F("One"));
+    display.println(F("O Off"));
     
   }else{
-    display.println(F("Not One"));
+    display.println(F("O  On"));
 
   }
   
   display.setCursor(10, 30);
- display.println(tdelta);
+
+  char strBuf[50];
+  sprintf(strBuf, "%duS", tdelta);
+  
+ display.println(strBuf);
 
 
   int fps = 0;
@@ -129,7 +133,9 @@ void loop() {
     fps = 328100 /tdelta;
   }
   display.setCursor(10, 50);
- display.println(fps);
+  sprintf(strBuf, "%dfps", fps);
+  display.println(strBuf);
+ //display.println("%dfps",fps);
 
   
   display.display();      // Show initial text
