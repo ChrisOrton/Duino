@@ -102,7 +102,7 @@ void loop() {
   display.setTextSize(2); // Draw 2X-scale text
   display.setTextColor(WHITE);
 
-  display.setCursor(0, 0);
+  display.setCursor(60, 0);
   if (digitalRead(inPin0)){
     display.println(F("Z  On"));
     
@@ -110,12 +110,12 @@ void loop() {
     display.println(F("Z Off")); 
   }
 
-  display.setCursor(60, 0);
+  display.setCursor(0, 0);
   if (digitalRead(inPin1)){
-    display.println(F("O Off"));
+    display.println(F("O  On"));
     
   }else{
-    display.println(F("O  On"));
+    display.println(F("O Off"));
 
   }
   
