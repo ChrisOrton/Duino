@@ -96,12 +96,12 @@ void loop() {
 
 void colorWipeC(uint32_t color, int wait) {
   
-  uint32_t  color0 = strip.Color(  0,   0, 7);
-  uint32_t  color1 = strip.Color(  0,   0, 15);
-  uint32_t  color2 = strip.Color(  0,   0, 31);
-  uint32_t  color3 = strip.Color(  0,   0, 63);
-  uint32_t  color4 = strip.Color(  0,   0, 31);
-  uint32_t  color5 = strip.Color(  0,   0, 15);
+  uint32_t  color0 = strip.Color(  7,   0, 7);
+  uint32_t  color1 = strip.Color(  15,   0, 15);
+  uint32_t  color2 = strip.Color(  31,   0, 31);
+  uint32_t  color3 = strip.Color(  63,   0, 63);
+  uint32_t  color4 = strip.Color(  31,   0, 31);
+  uint32_t  color5 = strip.Color(  15,   0, 15);
 
 /*
   uint32_t  color0 = strip.Color(255,   0, 7);
