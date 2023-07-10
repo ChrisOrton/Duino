@@ -59,6 +59,8 @@ void setup() {
     Serial.println(F("SSD1306 allocation failed"));
     for(;;); // Don't proceed, loop forever
   }
+  display.ssd1306_command(0xC8);
+  display.ssd1306_command(0xA0);
 
   // Show initial display buffer contents on the screen --
   // the library initializes this with an Adafruit splash screen.
@@ -67,6 +69,11 @@ void setup() {
 
   // Clear the buffer
   display.clearDisplay();
+
+  pinMode(13, INPUT_PULLUP);
+  pinMode(12, INPUT_PULLUP);
+
+
 
   pinMode(inPin0, INPUT);    // sets the digital pin 7 as input
   pinMode(inPin1, INPUT);    // sets the digital pin 7 as input
@@ -89,6 +96,14 @@ void loop() {
   if (inFlight){
     colorWipeT(strip.Color(  0,   0,   0), 5);    // Black/off
   }else{
+    stylesTextLoop();
+  }
+}
+
+void fancyloop() {
+  if (inFlight){
+    colorWipeT(strip.Color(  0,   0,   0), 5);    // Black/off
+  }else{
     nowLoop = millis();
     if ((nowLoop - lastLoop) > interval){
       lastLoop = nowLoop;
@@ -104,7 +119,10 @@ void loop() {
   }
 }
 
-//textloop();       
+void simpleloop() {
+  textloop();       
+}
+
 
 void stylesTextLoopRound(void) {
   display.clearDisplay();
@@ -164,13 +182,13 @@ void stylesTextLoop(void) {
   display.setCursor(10, 50);
   sprintf(strBuf, "%3d", fps);
 
-  display.setTextSize(2);             // Normal 1:1 pixel scale
+  display.setTextSize(1);             // Normal 1:1 pixel scale
   display.setTextColor(SSD1306_WHITE);        // Draw white text
-  display.setCursor(10,0);             // Start at top-left corner
+  display.setCursor(10,20);             // Start at top-left corner
   display.println(F("FPS"));
 
-  display.setCursor(20,20);             // Start at top-left corner
-  display.setTextSize(6);             // Draw 2X-scale text
+  display.setCursor(20,30);             // Start at top-left corner
+  display.setTextSize(5);             // Draw 2X-scale text
   display.setTextColor(SSD1306_WHITE);
   display.println(strBuf);
 
