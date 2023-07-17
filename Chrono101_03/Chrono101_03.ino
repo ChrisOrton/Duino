@@ -25,7 +25,7 @@
 // On a high -> low transition the button press logic will execute.
 #define BUTTON_PIN   2
 
-#define PIXEL_PIN    6  // Digital IO pin connected to the NeoPixels.
+#define PIXEL_PIN    12 // 6  // Digital IO pin connected to the NeoPixels.
 
 #define PIXEL_COUNT 22  // Number of NeoPixels
 
@@ -71,7 +71,7 @@ void setup() {
   display.clearDisplay();
 
   pinMode(13, INPUT_PULLUP);
-  pinMode(12, INPUT_PULLUP);
+//  pinMode(12, INPUT_PULLUP);
 
 
 
@@ -96,7 +96,8 @@ void loop() {
   if (inFlight){
     colorWipeT(strip.Color(  0,   0,   0), 5);    // Black/off
   }else{
-    stylesTextLoop();
+    LCDTextLoop();
+    //stylesTextLoop();
   }
 }
 
@@ -184,16 +185,88 @@ void stylesTextLoop(void) {
 
   display.setTextSize(1);             // Normal 1:1 pixel scale
   display.setTextColor(SSD1306_WHITE);        // Draw white text
-  display.setCursor(10,20);             // Start at top-left corner
+  display.setCursor(10,0);             // Start at top-left corner
   display.println(F("FPS"));
 
-  display.setCursor(20,30);             // Start at top-left corner
-  display.setTextSize(5);             // Draw 2X-scale text
+  display.setCursor(20,20);             // Start at top-left corner
+  display.setTextSize(6);             // Draw 2X-scale text
   display.setTextColor(SSD1306_WHITE);
   display.println(strBuf);
 
   display.display();
 }
+
+
+
+
+void LCDTextLoop(void) {
+  display.clearDisplay();
+
+  int fps = 0;
+  if (tdelta >100){
+    fps = 328100 /tdelta;
+  }
+
+  display.setTextSize(2);             // Normal 1:1 pixel scale
+  display.setTextColor(SSD1306_WHITE);        // Draw white text
+  display.setCursor(10,0);             // Start at top-left corner
+  display.println(F("FPS"));
+
+  drawNum(fps);
+
+  display.display();
+}
+
+
+
+
+
+bool charset[10][7] ={
+  {true, true, true, true,true,true,false},
+  {false,true,true,false,false,false,false},
+  {true,true,false,true,true,false,true},
+  {true,true,true,true,false,false,true},
+  {false,true,true,false,false,true,true},
+  {true,false,true,true,false,true,true},
+  {true,false,true,true,true,true,true},
+  {true,true,true,false,false,false,false},
+  {true,true,true,true,true,true,true},
+  {true,true,true,true,false,true,true}
+};
+
+void drawDigit(int number, int x) {
+  int lineWidth = 3;
+  int lineLength = 16;
+
+  if (charset[number][0])
+    display.fillRoundRect(x+12,16, lineLength, lineWidth, 2, SSD1306_WHITE);
+  if (charset[number][1])
+    display.fillRoundRect(x+30,18, lineWidth, lineLength, 2, SSD1306_WHITE);
+  if (charset[number][2]) 
+    display.fillRoundRect(x+30,39, lineWidth, lineLength, 2, SSD1306_WHITE);
+  if (charset[number][3])
+    display.fillRoundRect(x+12,56, lineLength, lineWidth, 2, SSD1306_WHITE);
+  if (charset[number][4])
+    display.fillRoundRect(x+8,39, lineWidth, lineLength, 2, SSD1306_WHITE);
+  if (charset[number][5])
+    display.fillRoundRect(x+8,18, lineWidth, lineLength, 2, SSD1306_WHITE);
+  if (charset[number][6])
+    display.fillRoundRect(x+12,36, lineLength, lineWidth, 2, SSD1306_WHITE);
+   
+}
+
+void drawNum(int number) {
+    int x =72;
+    do{
+        drawDigit((number % 10),x);
+        number = number /10;
+        x = x - 36;
+    }while (number >0);
+}
+
+
+
+
 
 
 void textloop() {
