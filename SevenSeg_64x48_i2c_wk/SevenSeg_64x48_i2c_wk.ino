@@ -46,10 +46,10 @@ void setup() {
     Serial.println(F("SSD1306 allocation failed"));
     for(;;); // Don't proceed, loop forever
   }
-  //display.ssd1306_command(SSD1306_SEGREMAP);
+  display.ssd1306_command(SSD1306_SEGREMAP);
 
-//ssd1306_command(SSD1306_COMSCANDEC);
-//  display.ssd1306_command(SSD1306_COMSCANINC);
+  //display.ssd1306_command(SSD1306_COMSCANDEC);
+  display.ssd1306_command(SSD1306_COMSCANINC);
 
 
 
