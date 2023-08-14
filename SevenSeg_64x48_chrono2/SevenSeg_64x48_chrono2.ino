@@ -37,6 +37,16 @@
 #define SCREEN_ADDRESS 0x3C ///< See datasheet for Address; 0x3D for 128x64, 0x3C for 128x32
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
+int inPin0 = D0;
+int inPin1 = D1;
+
+int mtstart = 0;
+int mtstop = 0;
+int mtdelta = 0;
+int stopCount =0;
+
+int roundCount = 0;
+bool inFlight = false;
 
 void setup() {
   Serial.begin(9600);
@@ -48,22 +58,158 @@ void setup() {
   }
   display.ssd1306_command(SSD1306_SEGREMAP);
 
-  //display.ssd1306_command(SSD1306_COMSCANDEC);
+//ssd1306_command(SSD1306_COMSCANDEC);
   display.ssd1306_command(SSD1306_COMSCANINC);
 
 
-
+  stopCount =0;
 
   // Show initial display buffer contents on the screen --
   // the library initializes this with an Adafruit splash screen.
   display.display();
   delay(2000); // Pause for 2 seconds
 
+  pinMode(inPin0, INPUT_PULLUP);    // sets the digital pin 7 as input
+  pinMode(inPin1, INPUT_PULLUP);    // sets the digital pin 7 as input
+  attachInterrupt(digitalPinToInterrupt(inPin0),buttonStart,FALLING); 
+  attachInterrupt(digitalPinToInterrupt(inPin1),buttonStop,FALLING); 
+
+  int roundCount = 0;
+
 }
 
+void buttonStart()          
+{    
+  mtstart = micros();
+  inFlight = true;               
+  roundCount++;
+}
+
+
+void buttonStop()          
+{                                 
+   mtstop = micros();              
+   mtdelta = mtstop - mtstart;
+   stopCount++;
+}
+
+
 void loop() {
-  testdrawSegments();
+  //testdrawSegments();
+  //simpleTextLoopFPS();
   //testdrawPattern();
+  textloop2();
+}
+
+void textloop2() {
+
+  display.clearDisplay();
+
+  display.setTextSize(2); // Draw 2X-scale text
+  display.setTextColor(WHITE);
+
+  display.setCursor(30, 0);
+  if (digitalRead(inPin0)){
+    display.println(F("On"));
+    
+  }else{
+    display.println(F("Off")); 
+  }
+
+  display.setCursor(0, 0);
+  if (digitalRead(inPin1)){
+    display.println(F("On"));
+    
+  }else{
+    display.println(F("Off"));
+
+  }
+
+
+
+  int fps = 0;
+  if (mtdelta >100){
+    fps = 328100 /mtdelta;
+  }
+  drawSegNumber(fps);
+  
+  display.display();      // Show initial text
+}
+
+
+
+void textloop() {
+
+  display.clearDisplay();
+
+  display.setTextSize(2); // Draw 2X-scale text
+  display.setTextColor(WHITE);
+
+  display.setCursor(30, 0);
+  if (digitalRead(inPin0)){
+    display.println(F("On"));
+    
+  }else{
+    display.println(F("Off")); 
+  }
+
+  display.setCursor(0, 0);
+  if (digitalRead(inPin1)){
+    display.println(F("On"));
+    
+  }else{
+    display.println(F("Off"));
+
+  }
+  
+  display.setCursor(10, 16);
+  char strBuf[50];
+  sprintf(strBuf, "%duS", mtdelta);
+  display.println(strBuf);
+
+
+  int fps = 0;
+  if (mtdelta >100){
+
+    fps = 328100 /mtdelta;
+  }
+  display.setCursor(10, 32);
+  sprintf(strBuf, "%dfps", fps);
+  display.println(strBuf);
+  
+  display.display();      // Show initial text
+}
+
+
+
+
+
+void simpleTextLoopFPS(void) {
+  display.clearDisplay();
+
+  char strBuf[50];
+  int fps = 0;
+  if (mtdelta >100){
+    fps = 328100 /mtdelta;
+  }
+
+  display.setTextSize(2);             // Normal 1:1 pixel scale
+  display.setTextColor(SSD1306_WHITE);        // Draw white text
+  display.setCursor(0,0);             // Start at top-left corner
+  display.println(F("FPS"));
+
+/*
+  Serial.println(tstart);
+Serial.println(tstop);
+*/
+  Serial.println(roundCount);
+   Serial.println(stopCount);
+
+  drawSegNumber(fps);
+  //drawSegNumber(22);
+
+  display.display();
+  delay(2000);
 }
 
 
@@ -161,7 +307,7 @@ void drawSegDigit(int d, int x){
 void drawSegNumber(int x){
     int y = x;
     int posx = 40;
-    do {
+    do{
         drawSegDigit(y %10, posx);
         y = y /10;
         posx = posx -20;
@@ -177,7 +323,7 @@ void testdrawSegments(void) {
     display.setTextSize(2);             // Normal 1:1 pixel scale
     display.setTextColor(SSD1306_WHITE);        // Draw white text
     display.setCursor(0,0);             // Start at top-left corner
-    display.println(F("Count"));
+    display.println(F("Shots"));
     
     drawSegNumber(i);
     display.display();

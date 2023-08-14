@@ -13,32 +13,16 @@
 #include <Adafruit_SSD1306.h>
 
 
-
-
-#include <Adafruit_NeoPixel.h>
-#ifdef __AVR__
- #include <avr/power.h> // Required for 16 MHz Adafruit Trinket
-#endif
-
-// Digital IO pin connected to the button. This will be driven with a
-// pull-up resistor so the switch pulls the pin to ground momentarily.
-// On a high -> low transition the button press logic will execute.
-#define BUTTON_PIN   2
-
-#define PIXEL_PIN    6  // Digital IO pin connected to the NeoPixels.
-
-#define PIXEL_COUNT 22  // Number of NeoPixels
-
-
-// Declare our NeoPixel strip object:
-// Adafruit_NeoPixel strip(PIXEL_COUNT, PIXEL_PIN, NEO_GRB + NEO_KHZ800);
-
-
 #define SCREEN_WIDTH 64 // OLED display width, in pixels
 #define SCREEN_HEIGHT 48 // OLED display height, in pixels
 
 // Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
+// The pins for I2C are defined by the Wire-library. 
+// On an arduino UNO:       A4(SDA), A5(SCL)
+// On an arduino MEGA 2560: 20(SDA), 21(SCL)
+// On an arduino LEONARDO:   2(SDA),  3(SCL), ...
 #define OLED_RESET     -1 // Reset pin # (or -1 if sharing Arduino reset pin)
+#define SCREEN_ADDRESS 0x3C ///< See datasheet for Address; 0x3D for 128x64, 0x3C for 128x32
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 
@@ -55,10 +39,14 @@ void setup() {
   Serial.begin(115200);
 
   // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
-  if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { 
+  if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
     Serial.println(F("SSD1306 allocation failed"));
     for(;;); // Don't proceed, loop forever
   }
+  //display.ssd1306_command(SSD1306_SEGREMAP);
+
+//ssd1306_command(SSD1306_COMSCANDEC);
+//  display.ssd1306_command(SSD1306_COMSCANINC);
 
   // Show initial display buffer contents on the screen --
   // the library initializes this with an Adafruit splash screen.
@@ -72,9 +60,6 @@ void setup() {
   pinMode(inPin1, INPUT_PULLUP);    // sets the digital pin 7 as input
   attachInterrupt(digitalPinToInterrupt(inPin0),buttonStart,FALLING); 
   attachInterrupt(digitalPinToInterrupt(inPin1),buttonStop,FALLING); 
-
-  //strip.begin(); // Initialize NeoPixel strip object (REQUIRED)
-  //strip.show();  // Initialize all pixels to 'off'
 
   int roundCount = 0;
 
@@ -118,9 +103,9 @@ void simpleTextLoopFPS(void) {
     fps = 328100 /tdelta;
   }
 
-  display.setTextSize(1);             // Normal 1:1 pixel scale
+  display.setTextSize(2);             // Normal 1:1 pixel scale
   display.setTextColor(SSD1306_WHITE);        // Draw white text
-  display.setCursor(10,0);             // Start at top-left corner
+  display.setCursor(0,0);             // Start at top-left corner
   display.println(F("FPS"));
 
   drawSegNumber(fps);
@@ -185,6 +170,22 @@ void drawSegNumber(int x){
     }
 }
 
+void testdrawSegments(void) {
+  for (int i=0 ; i<1000; i++){
+    display.clearDisplay();
+    //display.flipScreenVertically();
+
+    display.setTextSize(2);             // Normal 1:1 pixel scale
+    display.setTextColor(SSD1306_WHITE);        // Draw white text
+    display.setCursor(0,0);             // Start at top-left corner
+    display.println(F("Shots"));
+    
+    drawSegNumber(i);
+    display.display();
+    delay(300);
+  }
+  delay(2);
+}
 
 void stylesTextLoopRound(void) {
   display.clearDisplay();
