@@ -37,8 +37,11 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(115200);
 
+  delay(500); // Pause for 0.5 second
+
+  Serial.println(F("SSD1306 allocation attempt"));
   // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
   if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
     Serial.println(F("SSD1306 allocation failed"));
