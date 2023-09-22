@@ -41,7 +41,7 @@ void setup() {
                                          BLECharacteristic::PROPERTY_WRITE
                                        );
   
-  uint8_t bufd[]={0x7F,0x7F};
+  uint8_t bufd[]={0xAF,0x96};
   pControlCharacteristic->setValue(bufd,2);
   pService->start();
   // BLEAdvertising *pAdvertising = pServer->getAdvertising();  // this still is working for backward compatibility
