@@ -34,7 +34,7 @@ BLECharacteristic *pDataCharacteristic;
 
 
 /* Setting PWM Properties */
-const int PWMFreq = 150; /* 5 KHz */
+const int PWMFreq = 50; /* 5 KHz */
 const int PWMChannel = 0;
 const int PWMResolution = 10;
 const int MAX_DUTY_CYCLE = (int)(pow(2, PWMResolution) - 1);
