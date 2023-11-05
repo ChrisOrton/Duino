@@ -149,8 +149,9 @@ void loop() {
 
     int pwm_A = bufct[0] - 127;
     int pwm_B = bufct[1] - 127;
-
-
+    uint8_t inA = pwm_A;
+    uint8_t inB = pwm_B;
+  
     pwm_A = pwm_A*8;
     pwm_B = pwm_B*8;
   
@@ -159,7 +160,8 @@ void loop() {
 
     char bufd[]={xb++, yb++, 23 ,57 };
 
-    uint8_t bufdt[]={yt++, xt++};
+    //uint8_t bufdt[]={yt++, xt++};
+    uint8_t bufdt[]={inA, inB};
     pDataCharacteristic->setValue(bufdt,2);
     
     pDataCharacteristic->notify();

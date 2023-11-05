@@ -103,7 +103,7 @@ void loop()
   //  Serial.print(millis());
   //  Serial.print("\t");
   
-  //Serial.print(as5600.readAngle());
+  Serial.print(as5600.readAngle());
   //Serial.print("\t");
   //Serial.println(as5600.rawAngle());
   float fang = as5600.rawAngle() * AS5600_RAW_TO_DEGREES;
@@ -112,8 +112,8 @@ void loop()
   testdrawSegment((int)fang, i);
   i = i+1;
 
-
-  float fArc = 90;
+/**/
+  float fArc = 45;
   float fAngModArc = fmod(fang, fArc);
   if (fAngModArc < (fArc/4)){
 
@@ -130,7 +130,7 @@ void loop()
     ledcWrite(1, 0);
 
   }
-
+/**/
   delay(20);
 }
 
