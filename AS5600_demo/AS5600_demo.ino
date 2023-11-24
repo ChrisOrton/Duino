@@ -22,6 +22,8 @@
 #define SCREEN_ADDRESS 0x3C ///< See datasheet for Address; 0x3D for 128x64, 0x3C for 128x32
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
+float OLEDTimer = 0; //Timer for the screen refresh
+
 AS5600 as5600;   //  use default Wire
 
 /* Setting PWM Properties */
@@ -109,30 +111,97 @@ void loop()
   float fang = as5600.rawAngle() * AS5600_RAW_TO_DEGREES;
   //Serial.println(fang);
 
-  testdrawSegment((int)fang, i);
+  //testdrawSegment((int)fang, i);
   i = i+1;
 
 /**/
-  float fArc = 45;
+  float fArc = 90;
   float fAngModArc = fmod(fang, fArc);
-  if (fAngModArc < (fArc/4)){
+  if (fAngModArc < (fArc/16)){
 
-    int pwm = (int)(255.0 * ((fArc/4) - fAngModArc) / (fArc/4));
-    ledcWrite(0, 0);
-    ledcWrite(1, pwm);
+    int iPwm = (int)(255.0 * ((fArc/4) - fAngModArc) / (fArc/4));
+    wrapLedCWrite(0, 0);
+    wrapLedCWrite(1, 0);
     
+    drawDebug(fang, fAngModArc, iPwm);
+    
+  }else if (fAngModArc < (fArc/4)){
 
+    int iPwm = (int)(255.0 * ((fArc/4) - fAngModArc) / (fArc/4));
+    wrapLedCWrite(0, iPwm);
+    wrapLedCWrite(1, 0);
     
+    drawDebug(fang, fAngModArc, iPwm);
+    
+  }else if (fAngModArc > (fArc*15/16)){
+    //int iPwm = (int)(255.0 * (fArc - fAngModArc) / (fArc/4));
+    int iPwm = (int)(255.0 * (fAngModArc - (fArc* 3/4)   ) / (fArc/4));
+
+    wrapLedCWrite(0, 0);
+    wrapLedCWrite(1, 0);
+    drawDebug(fang, fAngModArc, -iPwm);
   }else if (fAngModArc > (fArc*3/4)){
-    int pwm = (int)(255.0 * (fArc - fAngModArc) / (fArc/4));
+    //int iPwm = (int)(255.0 * (fArc - fAngModArc) / (fArc/4));
+    int iPwm = (int)(255.0 * (fAngModArc - (fArc* 3/4)   ) / (fArc/4));
 
-    ledcWrite(0, pwm);
-    ledcWrite(1, 0);
+    wrapLedCWrite(0, 0);
+    wrapLedCWrite(1, iPwm);
+    drawDebug(fang, fAngModArc, -iPwm);
+  } else{
 
+    int iPwm = 0;
+
+    wrapLedCWrite(0, 0);
+    wrapLedCWrite(1, 0);
+    drawDebug(fang, fAngModArc, iPwm);
+    
   }
 /**/
-  delay(20);
+  //delay(20);
 }
+
+void wrapLedCWrite(int channel, int iPwm){
+
+    //ledcWrite(channel, iPwm);
+  
+}
+
+
+void drawDebug(float angle, float modAngle,int  iPwm) {
+    char str[80];
+  if (millis() - OLEDTimer > 100) //chech if we will update at every 100 ms
+  { 
+    
+    display.clearDisplay();
+    
+    display.setTextSize(2);             // Normal 1:1 pixel scale
+    display.setTextColor(SSD1306_WHITE);        // Draw white text
+    
+    display.setCursor(0,0);             // Start at top-left corner
+    display.println(F("Ang"));
+    display.setCursor(56,0);             // Start at top-left corner
+    sprintf(str, "%.2f", angle);
+    display.println(str);
+    
+    display.setCursor(0,20);             // Start at top-left corner
+    display.println(F("Mod"));
+    display.setCursor(64,20);             // Start at top-left corner
+    sprintf(str, "%.2f", modAngle);
+    display.println(str);
+
+    display.setCursor(0,40);             // Start at top-left corner
+    display.println(F("PWM"));
+    display.setCursor(64,40);             // Start at top-left corner
+    display.println(iPwm);
+
+
+    
+    display.display();
+    OLEDTimer = millis(); //reset timer   
+  }
+}
+
+
 
 void testdrawSegment(int show, int pulse) {
   
